@@ -16,9 +16,6 @@ Desktop.ini
 # Dependencias
 node_modules/
 
-# Variables de entorno
-.env
-.env.*
 
 # Logs
 logs/
