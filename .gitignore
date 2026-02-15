@@ -63,9 +63,4 @@ publish/
 *.mdf
 *.ldf
 
-# ===============================
-# CONFIGURACIONES SENSIBLES
-# ===============================
 
-appsettings.Development.json
-secrets.json
