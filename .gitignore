@@ -1,0 +1,74 @@
+# ===============================
+# SISTEMA OPERATIVO
+# ===============================
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Mac
+.DS_Store
+
+# ===============================
+# NODE.JS
+# ===============================
+
+# Dependencias
+node_modules/
+
+# Variables de entorno
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# Build / Producción
+dist/
+build/
+coverage/
+
+# Archivos temporales
+.tmp/
+.temp/
+
+# ===============================
+# .NET
+# ===============================
+
+# Compilación
+bin/
+obj/
+
+# Archivos generados
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider / Visual Studio
+.vs/
+.vscode/
+
+# Publicaciones
+publish/
+
+# ===============================
+# BASES DE DATOS LOCALES
+# ===============================
+
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# ===============================
+# CONFIGURACIONES SENSIBLES
+# ===============================
+
+appsettings.Development.json
+secrets.json
