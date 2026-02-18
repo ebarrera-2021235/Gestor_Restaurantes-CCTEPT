@@ -4,6 +4,7 @@ using UserService.Domain.Entities;
 using UserService.Persistence.Data;
 
 namespace UserService.Persistence.Repositories;
+
 public class UserRepository : IUserRepository
 {
     private readonly ApplicationDbContext _context;
@@ -15,12 +16,30 @@ public class UserRepository : IUserRepository
 
     public async Task<IEnumerable<User>> GetAllAsync()
     {
-        return await _context.Users.ToListAsync();
+        return await _context.Users
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<User?> GetByIdAsync(string id)
     {
-        return await _context.Users.FindAsync(id);
+        return await _context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.IdUsuario == id);
+    }
+
+    // 🔐 NUEVO - Buscar por email
+    public async Task<User?> GetByEmailAsync(string email)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == email);
+    }
+
+    // 🔐 NUEVO - Validar si existe email
+    public async Task<bool> ExistsByEmailAsync(string email)
+    {
+        return await _context.Users
+            .AnyAsync(u => u.Email == email);
     }
 
     public async Task AddAsync(User user)

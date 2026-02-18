@@ -19,19 +19,31 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// DbContext
+/// -------------------- DATABASE --------------------
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-// Repositorio
+/// -------------------- REPOSITORIES --------------------
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
-// Servicio
+/// -------------------- APPLICATION SERVICES --------------------
+
+// User Service
 builder.Services.AddScoped<IUserService, UserService.Application.Services.UserService>();
 
+// 🔐 Password Hash Service (NUEVO)
+builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+
+// 🔐 Auth Service (NUEVO)
+builder.Services.AddScoped<IAuthService, AuthService>();
+
 var app = builder.Build();
+
+/// -------------------- MIDDLEWARE --------------------
 
 if (app.Environment.IsDevelopment())
 {
@@ -40,8 +52,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 app.UseAuthorization();
+
 app.MapControllers();
+
+/// -------------------- MIGRATIONS --------------------
 
 using (var scope = app.Services.CreateScope())
 {
