@@ -44,4 +44,6 @@ public class User
     // --- Referencia a UserRoles ---
     
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
+
 }
