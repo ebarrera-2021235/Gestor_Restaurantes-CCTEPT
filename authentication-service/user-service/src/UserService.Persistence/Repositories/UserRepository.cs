@@ -17,23 +17,28 @@ public class UserRepository : IUserRepository
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         return await _context.Users
+            .Include(u => u.Role)
             .AsNoTracking()
             .ToListAsync();
     }
 
+
     public async Task<User?> GetByIdAsync(string id)
     {
         return await _context.Users
+            .Include(u => u.Role)
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.IdUsuario == id);
     }
 
-    // 🔐 NUEVO - Buscar por email
+
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _context.Users
+            .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == email);
     }
+
 
     // 🔐 NUEVO - Validar si existe email
     public async Task<bool> ExistsByEmailAsync(string email)
