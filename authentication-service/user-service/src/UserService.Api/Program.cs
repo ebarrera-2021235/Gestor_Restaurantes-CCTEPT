@@ -81,9 +81,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"))
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly("UserService.Persistence")
+    )
 );
-
 /// -------------------- REPOSITORIES --------------------
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
