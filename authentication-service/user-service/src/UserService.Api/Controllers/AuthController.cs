@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using UserService.Application.DTOs;
 using UserService.Application.Interfaces;
+using System; 
 
 namespace UserService.Api.Controllers;
 
@@ -16,18 +17,25 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterDto dto)
+    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        var result = await _authService.RegisterAsync(dto);
-        return Ok(result);
+        try
+        {
+            var result = await _authService.RegisterAsync(dto);
+            return Ok(new { message = "Usuario registrado con éxito", data = result });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginDto dto)
+    public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
         var result = await _authService.LoginAsync(dto);
         if (result == null)
-            return Unauthorized();
+            return Unauthorized(new { message = "Credenciales incorrectas" });
 
         return Ok(result);
     }

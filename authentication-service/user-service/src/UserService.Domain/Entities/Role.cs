@@ -27,10 +27,6 @@ public class Role
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     // --- Relaciones ---
-
-    // Permite ver los usuarios asignados vía tabla intermedia
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
-    // Permite ver los usuarios que tienen este rol como principal (FK directa)
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

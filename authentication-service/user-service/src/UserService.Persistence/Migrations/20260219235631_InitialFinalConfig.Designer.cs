@@ -12,8 +12,8 @@ using UserService.Persistence.Data;
 namespace UserService.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260218224713_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260219235631_InitialFinalConfig")]
+    partial class InitialFinalConfig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,6 +95,22 @@ namespace UserService.Persistence.Migrations
                     b.HasKey("IdRol");
 
                     b.ToTable("roles");
+
+                    b.HasData(
+                        new
+                        {
+                            IdRol = 1,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "Admin",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            IdRol = 2,
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Name = "User",
+                            UpdatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>
@@ -108,7 +124,7 @@ namespace UserService.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
-                        .HasColumnName("contraseña");
+                        .HasColumnName("contrasena");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -120,10 +136,6 @@ namespace UserService.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("fecha_creacion");
 
-                    b.Property<int>("IdRol")
-                        .HasColumnType("integer")
-                        .HasColumnName("id_rol");
-
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -131,8 +143,6 @@ namespace UserService.Persistence.Migrations
                         .HasColumnName("nombre");
 
                     b.HasKey("IdUsuario");
-
-                    b.HasIndex("IdRol");
 
                     b.ToTable("users");
                 });
@@ -182,17 +192,6 @@ namespace UserService.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("UserService.Domain.Entities.User", b =>
-                {
-                    b.HasOne("UserService.Domain.Entities.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("IdRol")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("UserService.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("UserService.Domain.Entities.Role", "Role")
@@ -215,8 +214,6 @@ namespace UserService.Persistence.Migrations
             modelBuilder.Entity("UserService.Domain.Entities.Role", b =>
                 {
                     b.Navigation("UserRoles");
-
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("UserService.Domain.Entities.User", b =>

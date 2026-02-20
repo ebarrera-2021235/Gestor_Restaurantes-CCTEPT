@@ -4,10 +4,12 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace UserService.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialFinalConfig : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -35,19 +37,12 @@ namespace UserService.Persistence.Migrations
                     id_usuario = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
                     nombre = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     email = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
-                    contraseña = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    fecha_creacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    id_rol = table.Column<int>(type: "integer", nullable: false)
+                    contrasena = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    fecha_creacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_users", x => x.id_usuario);
-                    table.ForeignKey(
-                        name: "FK_users_roles_id_rol",
-                        column: x => x.id_rol,
-                        principalTable: "roles",
-                        principalColumn: "id_rol",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -100,6 +95,15 @@ namespace UserService.Persistence.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "roles",
+                columns: new[] { "id_rol", "fecha_creacion", "nombre_rol", "permisos", "fecha_actualizacion" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "Admin", null, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) },
+                    { 2, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "User", null, new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_ratings_user_id",
                 table: "ratings",
@@ -114,11 +118,6 @@ namespace UserService.Persistence.Migrations
                 name: "IX_user_roles_id_usuario",
                 table: "user_roles",
                 column: "id_usuario");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_users_id_rol",
-                table: "users",
-                column: "id_rol");
         }
 
         /// <inheritdoc />
@@ -131,10 +130,10 @@ namespace UserService.Persistence.Migrations
                 name: "user_roles");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "roles");
 
             migrationBuilder.DropTable(
-                name: "roles");
+                name: "users");
         }
     }
 }

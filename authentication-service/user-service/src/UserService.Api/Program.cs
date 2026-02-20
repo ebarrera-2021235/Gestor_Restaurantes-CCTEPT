@@ -10,8 +10,6 @@ using UserService.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-/// -------------------- SERVICES --------------------
-
 builder.Services.AddControllers()
     .AddJsonOptions(o =>
     {
@@ -20,7 +18,6 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -51,8 +48,6 @@ builder.Services.AddSwaggerGen(options =>
 
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
-/// -------------------- JWT AUTH --------------------
-
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
 
@@ -77,35 +72,27 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-/// -------------------- DATABASE --------------------
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly("UserService.Persistence")
     )
 );
-/// -------------------- REPOSITORIES --------------------
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRatingRepository, RatingRepository>();
 builder.Services.AddScoped<IRatingService, RatingService>();
 
-
-/// -------------------- APPLICATION SERVICES --------------------
-
-// User Service
 builder.Services.AddScoped<IUserService, UserService.Application.Services.UserService>();
 
-// 🔐 Password Hash Service (NUEVO)
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 
-// 🔐 Auth Service (NUEVO)
 builder.Services.AddScoped<IAuthService, AuthService>();
+
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 var app = builder.Build();
 
-/// -------------------- MIDDLEWARE --------------------
 
 if (app.Environment.IsDevelopment())
 {
@@ -120,7 +107,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-/// -------------------- MIGRATIONS --------------------
 
 using (var scope = app.Services.CreateScope())
 {
