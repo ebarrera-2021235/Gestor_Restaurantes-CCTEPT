@@ -17,7 +17,8 @@ public class UserRepository : IUserRepository
     public async Task<IEnumerable<User>> GetAllAsync()
     {
         return await _context.Users
-            .Include(u => u.Role)
+            .Include(u => u.UserRoles) 
+            .ThenInclude(ur => ur.Role)   
             .AsNoTracking()
             .ToListAsync();
     }
@@ -26,7 +27,8 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByIdAsync(string id)
     {
         return await _context.Users
-            .Include(u => u.Role)
+            .Include(u => u.UserRoles) 
+            .ThenInclude(ur => ur.Role) 
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.IdUsuario == id);
     }
@@ -35,12 +37,12 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetByEmailAsync(string email)
     {
         return await _context.Users
-            .Include(u => u.Role)
+            .Include(u => u.UserRoles)  
+            .ThenInclude(ur => ur.Role) 
             .FirstOrDefaultAsync(u => u.Email == email);
     }
 
 
-    // 🔐 NUEVO - Validar si existe email
     public async Task<bool> ExistsByEmailAsync(string email)
     {
         return await _context.Users

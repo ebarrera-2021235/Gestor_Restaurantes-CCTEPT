@@ -28,7 +28,7 @@ public class UserService : IUserService
             Nombre = u.Nombre,
             Email = u.Email,
             FechaCreacion = u.FechaCreacion,
-            IdRol = u.IdRol
+            IdRol = u.UserRoles.FirstOrDefault()?.RoleId ?? 0
         });
     }
 
@@ -43,21 +43,18 @@ public class UserService : IUserService
             Nombre = user.Nombre,
             Email = user.Email,
             FechaCreacion = user.FechaCreacion,
-            IdRol = user.IdRol
+            IdRol = user.UserRoles.FirstOrDefault()?.RoleId ?? 0 
         };
     }
 
     public async Task<UserResponseDto> CreateAsync(CreateUserDto dto)
     {
-        // 🔐 Validar email duplicado
         if (await _repository.ExistsByEmailAsync(dto.Email.ToLower()))
             throw new Exception("El email ya está registrado.");
 
-        // 🔐 Validar contraseña mínima
         if (string.IsNullOrWhiteSpace(dto.Contrasena) || dto.Contrasena.Length < 8)
             throw new Exception("La contraseña debe tener al menos 8 caracteres.");
 
-        // 🔐 Hashear contraseña
         var hashedPassword = _passwordHashService.HashPassword(dto.Contrasena);
 
         var user = new User
@@ -66,7 +63,15 @@ public class UserService : IUserService
             Nombre = dto.Nombre,
             Email = dto.Email.ToLower(),
             Contrasena = hashedPassword,
-            IdRol = dto.IdRol
+            
+            UserRoles = new List<UserRole>
+            {
+                new UserRole
+                {
+                    Id = Guid.NewGuid().ToString("N").Substring(0, 16),
+                    RoleId = dto.IdRol
+                }
+            }
         };
 
         await _repository.AddAsync(user);
@@ -77,7 +82,7 @@ public class UserService : IUserService
             Nombre = user.Nombre,
             Email = user.Email,
             FechaCreacion = user.FechaCreacion,
-            IdRol = user.IdRol
+            IdRol = user.UserRoles.FirstOrDefault()?.RoleId ?? 0 
         };
     }
 
@@ -86,7 +91,6 @@ public class UserService : IUserService
         var user = await _repository.GetByIdAsync(id);
         if (user == null) return false;
 
-        // 🔐 Validar email duplicado si cambia
         if (!user.Email.Equals(dto.Email, StringComparison.OrdinalIgnoreCase))
         {
             if (await _repository.ExistsByEmailAsync(dto.Email.ToLower()))
@@ -95,7 +99,19 @@ public class UserService : IUserService
 
         user.Nombre = dto.Nombre;
         user.Email = dto.Email.ToLower();
-        user.IdRol = dto.IdRol;
+        var userRole = user.UserRoles.FirstOrDefault();
+        if (userRole != null)
+        {
+            userRole.RoleId = dto.IdRol;
+        }
+        else
+        {
+            user.UserRoles.Add(new UserRole 
+            {
+                Id = Guid.NewGuid().ToString("N").Substring(0, 16),
+                RoleId = dto.IdRol
+            });
+        }
 
         await _repository.UpdateAsync(user);
         return true;
