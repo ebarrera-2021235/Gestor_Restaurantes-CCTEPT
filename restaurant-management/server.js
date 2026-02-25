@@ -7,29 +7,37 @@ const fastify = require("fastify")({
 const connectDB = require("./configs/db.js");
 const swaggerConfig = require("./configs/swagger.js");
 
+const errorHandler = require("./utils/errorHandler");
+
 const restauranteRoutes = require("./routes/restaurantes.js");
 const menuRoutes = require("./routes/menus.js");
+const tableRoutes = require("./routes/tables.js");
+const reservationRoutes = require("./routes/reservations.js");
 
 fastify.register(require("@fastify/cors"), {
     origin: true
 });
 
-
 const startServer = async () => {
     try {
         await connectDB();
         await swaggerConfig(fastify);
+
         fastify.register(restauranteRoutes, { prefix: "/restaurantes" });
         fastify.register(menuRoutes, { prefix: "/menus" });
+        fastify.register(tableRoutes, { prefix: "/tables" });
+        fastify.register(reservationRoutes, { prefix: "/reservations" });
+
+        fastify.setErrorHandler(errorHandler);
 
         await fastify.listen({ port: env.PORT });
-        
+
         console.log(`Servidor corriendo en http://localhost:${env.PORT}`);
         console.log(`Documentación disponible en http://localhost:${env.PORT}/docs`);
 
-        } catch (error) {
-            fastify.log.error(error);
-            process.exit(1);
+    } catch (error) {
+        fastify.log.error(error);
+        process.exit(1);
     }
 };
 
