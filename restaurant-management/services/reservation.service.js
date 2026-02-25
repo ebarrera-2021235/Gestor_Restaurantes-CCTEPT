@@ -2,6 +2,11 @@ const Reservation = require("../models/reservation");
 const Table = require("../models/table");
 const Restaurant = require("../models/restaurante");
 
+function horaAMinutos(hora) {
+    const [h, m] = hora.split(":").map(Number);
+    return h * 60 + m;
+  }
+
 async function crearReserva(data) {
   const {
     restaurantId,
@@ -13,9 +18,48 @@ async function crearReserva(data) {
     people
   } = data;
 
+  const nuevaInicio = horaAMinutos(startTime);
+  const nuevaFin = horaAMinutos(endTime);
+
   const restaurant = await Restaurant.findById(restaurantId);
   if (!restaurant) {
     throw new Error("Restaurante no encontrado");
+  }
+
+  if (nuevaInicio >= nuevaFin) {
+    throw new Error("La hora de fin debe ser mayor que la hora de inicio");
+  }
+
+  const fechaBase = new Date(reservationDate);
+  fechaBase.setHours(0,0,0,0);
+  const dia = fechaBase.getDay(); 
+  // 0 = domingo, 6 = sábado
+
+  let apertura;
+  let cierre;
+
+  if (dia >= 1 && dia <= 5) {
+    // Lunes a viernes
+    apertura = "10:00";
+    cierre = "20:00";
+  } else {
+    // Sábado y domingo
+    apertura = "08:00";
+    cierre = "22:00";
+  }
+
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+
+  if (fechaBase < hoy) {
+    throw new Error("No se puede reservar en una fecha pasada");
+  }
+
+  const aperturaMin = horaAMinutos(apertura);
+  const cierreMin = horaAMinutos(cierre);
+
+  if (nuevaInicio < aperturaMin || nuevaFin > cierreMin) {
+    throw new Error("La reserva está fuera del horario permitido para ese día");
   }
 
   const table = await Table.findById(tableId);
@@ -27,35 +71,38 @@ async function crearReserva(data) {
     throw new Error("La mesa no está disponible");
   }
 
-  if (table.restaurantId.toString() !== restaurantId) {
+  if (table.restaurantId.toString() !== restaurantId.toString()) {
     throw new Error("La mesa no pertenece a este restaurante");
+  }
+
+  if (restaurant.estado !== "activo") {
+    throw new Error("El restaurante no está disponible para reservas");
   }
 
   if (people > table.capacity) {
     throw new Error("La cantidad de personas excede la capacidad de la mesa");
   }
 
-  const existeSolapamiento = await Reservation.findOne({
+  const reservasExistentes = await Reservation.find({
     tableId,
-    reservationDate: new Date(reservationDate),
-    status: "confirmed",
-    $or: [
-      {
-        startTime: { $lt: endTime },
-        endTime: { $gt: startTime }
-      }
-    ]
+    reservationDate: fechaBase,
+    status: "confirmed"
   });
 
-  if (existeSolapamiento) {
-    throw new Error("El horario seleccionado no está disponible");
+  for (const r of reservasExistentes) {
+    const existenteInicio = horaAMinutos(r.startTime);
+    const existenteFin = horaAMinutos(r.endTime);
+
+    if (nuevaInicio < existenteFin && nuevaFin > existenteInicio) {
+      throw new Error("El horario seleccionado no está disponible");
+    }
   }
 
   const reserva = new Reservation({
     restaurantId,
     tableId,
     userId,
-    reservationDate,
+    reservationDate: fechaBase,
     startTime,
     endTime,
     people,
