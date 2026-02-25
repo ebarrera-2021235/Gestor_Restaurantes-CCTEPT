@@ -46,10 +46,6 @@ const reservationSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(RESERVATION_STATUS),
       default: RESERVATION_STATUS.CONFIRMED
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now
     }
   },
   {
