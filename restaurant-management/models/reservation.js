@@ -21,7 +21,7 @@ const reservationSchema = new mongoose.Schema(
       index: true
     },
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true
     },
     reservationDate: {

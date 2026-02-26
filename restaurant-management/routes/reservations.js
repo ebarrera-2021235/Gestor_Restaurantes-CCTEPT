@@ -6,40 +6,47 @@ const { successResponse } = require("../utils/responseFormatter");
 async function reservationRoutes(fastify, options) {
 
     fastify.post(
-        "/",
-        {
-            schema: {
-                body: {
-                    type: "object",
-                    required: [
-                        "restaurantId",
-                        "tableId",
-                        "userId",
-                        "reservationDate",
-                        "startTime",
-                        "endTime",
-                        "people"
-                    ],
-                    properties: {
-                        restaurantId: { type: "string" },
-                        tableId: { type: "string" },
-                        userId: { type: "string" },
-                        reservationDate: { type: "string", format: "date" },
-                        startTime: { type: "string" },
-                        endTime: { type: "string" },
-                        people: { type: "number" }
-                    }
-                }
+    "/",
+    {
+        schema: {
+        body: {
+            type: "object",
+            required: [
+            "restaurantId",
+            "tableId",
+            "userId",
+            "reservationDate",
+            "startTime",
+            "endTime",
+            "people"
+            ],
+            properties: {
+            restaurantId: { type: "string" },
+            tableId: { type: "string" },
+            userId: { type: "string" },
+            reservationDate: { type: "string", format: "date" },
+            startTime: { type: "string" },
+            endTime: { type: "string" },
+            people: { type: "number" }
             }
-        },
-        asyncHandler(async (request, reply) => {
-
-            const reserva = await reservationService.crearReserva(request.body);
-
-            return reply.code(201).send(
-                successResponse(reserva, "Reserva creada correctamente")
-            );
-        })
+        }
+        }
+    },
+    async (request, reply) => {
+        try {
+        const reserva = await reservationService.crearReserva(request.body);
+        return reply.code(201).send({
+            success: true,
+            message: "Reserva creada correctamente",
+            data: reserva
+        });
+        } catch (err) {
+        return reply.code(400).send({
+            success: false,
+            message: err.message || "Error al crear la reserva"
+        });
+        }
+    }
     );
 
 
