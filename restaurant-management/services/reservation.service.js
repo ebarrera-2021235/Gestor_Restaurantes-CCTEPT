@@ -83,19 +83,20 @@ async function crearReserva(data) {
     throw new Error("La cantidad de personas excede la capacidad de la mesa");
   }
 
-  const reservasExistentes = await Reservation.find({
+  const conflicto = await Reservation.findOne({
     tableId,
     reservationDate: fechaBase,
-    status: "confirmed"
+    status: "confirmed",
+    $expr: {
+      $and: [
+        { $lt: [nuevaInicio, { $add: [{ $multiply: [{ $toInt: { $substr: ["$endTime", 0, 2] } }, 60] }, { $toInt: { $substr: ["$endTime", 3, 2] } }] }] },
+        { $gt: [nuevaFin, { $add: [{ $multiply: [{ $toInt: { $substr: ["$startTime", 0, 2] } }, 60] }, { $toInt: { $substr: ["$startTime", 3, 2] } }] }] }
+      ]
+    }
   });
 
-  for (const r of reservasExistentes) {
-    const existenteInicio = horaAMinutos(r.startTime);
-    const existenteFin = horaAMinutos(r.endTime);
-
-    if (nuevaInicio < existenteFin && nuevaFin > existenteInicio) {
-      throw new Error("El horario seleccionado no está disponible");
-    }
+  if (conflicto) {
+    throw new Error("El horario seleccionado no está disponible (concurrencia detectada)");
   }
 
   const reserva = new Reservation({
