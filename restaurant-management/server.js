@@ -13,6 +13,7 @@ const restauranteRoutes = require("./routes/restaurantes.js");
 const menuRoutes = require("./routes/menus.js");
 const tableRoutes = require("./routes/tables.js");
 const reservationRoutes = require("./routes/reservations.js");
+const orderRoutes = require("./routes/pedidos.js");
 
 fastify.register(require("@fastify/cors"), {
     origin: true
@@ -27,6 +28,7 @@ const startServer = async () => {
         fastify.register(menuRoutes, { prefix: "/menus" });
         fastify.register(tableRoutes, { prefix: "/tables" });
         fastify.register(reservationRoutes, { prefix: "/reservations" });
+        fastify.register(orderRoutes, { prefix: "/orders" });
 
         fastify.setErrorHandler(errorHandler);
 

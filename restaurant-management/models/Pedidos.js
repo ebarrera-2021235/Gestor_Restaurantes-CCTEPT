@@ -130,4 +130,8 @@ orderSchema.pre("save", function(next) {
 
 orderSchema.index({ restaurantId: 1, createdAt: -1 });
 
-module.exports = mongoose.model("Order", orderSchema);
+module.exports = {
+  Order: mongoose.model("Order", orderSchema),
+  ORDER_STATUS,
+  ORDER_TYPE
+};
