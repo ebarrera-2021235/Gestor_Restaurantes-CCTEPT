@@ -1,6 +1,7 @@
 const Reservation = require("../models/reservation");
 const Table = require("../models/table");
 const Restaurant = require("../models/restaurante");
+const validarObjectId = require("../utils/objectIdValidator");
 
 function horaAMinutos(hora) {
     const [h, m] = hora.split(":").map(Number);
@@ -8,6 +9,8 @@ function horaAMinutos(hora) {
   }
 
 async function crearReserva(data) {
+  validarObjectId(data.restaurantId);
+  validarObjectId(data.tableId);
   const {
     restaurantId,
     tableId,
@@ -17,6 +20,46 @@ async function crearReserva(data) {
     endTime,
     people
   } = data;
+
+  if (!reservationDate || reservationDate.trim() === "") {
+    const error = new Error("reservationDate es obligatorio y no puede estar vacío");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const fechaBase = new Date(reservationDate);
+  if (isNaN(fechaBase.getTime())) {
+    const error = new Error("reservationDate no es una fecha válida");
+    error.statusCode = 400;
+    throw error;
+  }
+  fechaBase.setHours(0, 0, 0, 0);
+  
+  if (!userId || userId.trim() === "") {
+      const error = new Error("userId es obligatorio y no puede estar vacío");
+      error.statusCode = 400;
+      throw error;
+  }
+
+  const userIdRegex = /^[0-9a-fA-F]{16}$/;
+  if (!userIdRegex.test(userId)) {
+      const error = new Error("userId no válido");
+      error.statusCode = 400;
+      throw error;
+  }
+
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+  if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
+    const error = new Error("startTime/endTime deben tener formato HH:MM (24h)");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!Number.isInteger(people) || people < 1) {
+    const error = new Error("people debe ser un entero mayor o igual a 1");
+    error.statusCode = 400;
+    throw error;
+  }
 
   const nuevaInicio = horaAMinutos(startTime);
   const nuevaFin = horaAMinutos(endTime);
@@ -30,7 +73,6 @@ async function crearReserva(data) {
     throw new Error("La hora de fin debe ser mayor que la hora de inicio");
   }
 
-  const fechaBase = new Date(reservationDate);
   fechaBase.setHours(0,0,0,0);
   const dia = fechaBase.getDay(); 
   // 0 = domingo, 6 = sábado
@@ -118,6 +160,7 @@ async function obtenerReservasPorRestaurante(restaurantId) {
 }
 
 async function cancelarReserva(reservationId) {
+  validarObjectId(reservationId);
   const reserva = await Reservation.findById(reservationId);
 
   if (!reserva) {
