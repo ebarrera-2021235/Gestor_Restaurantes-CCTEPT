@@ -95,6 +95,10 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(ORDER_STATUS),
       default: ORDER_STATUS.PENDING
+    },
+    resenia_realizada: {
+      type: Boolean,
+      default: false
     }
   },
   {
