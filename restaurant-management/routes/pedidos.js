@@ -7,7 +7,7 @@ const { ORDER_STATUS, ORDER_TYPE } = require("../models/Pedidos.js");
 
 async function orderRoutes(fastify, options) {
 
-    // POST
+    // POST /orders
     fastify.post(
         "/",
         {
@@ -19,7 +19,7 @@ async function orderRoutes(fastify, options) {
 
                         restaurantId: { type: "string" },
 
-                        userId: { 
+                        userId: {
                             type: "string",
                             minLength: 1
                         },
@@ -48,12 +48,12 @@ async function orderRoutes(fastify, options) {
 
                                     nombre_snapshot: { type: "string" },
 
-                                    cantidad: { 
+                                    cantidad: {
                                         type: "number",
                                         minimum: 1
                                     },
 
-                                    precio_unitario: { 
+                                    precio_unitario: {
                                         type: "number",
                                         minimum: 0
                                     }
@@ -62,7 +62,7 @@ async function orderRoutes(fastify, options) {
                             }
                         },
 
-                        impuestos: { 
+                        impuestos: {
                             type: "number",
                             minimum: 0,
                             default: 0
@@ -91,7 +91,6 @@ async function orderRoutes(fastify, options) {
                 validarObjectId(item.id_plato);
             });
 
-
             const order = await orderService.createOrder(request.body);
 
             return reply.code(201).send(
@@ -100,7 +99,6 @@ async function orderRoutes(fastify, options) {
 
         })
     );
-
 
 
     // GET /orders/restaurant/:id
@@ -134,13 +132,11 @@ async function orderRoutes(fastify, options) {
     );
 
 
-
     // PATCH /orders/:id/status
     fastify.patch(
         "/:id/status",
         {
             schema: {
-
                 params: {
                     type: "object",
                     required: ["id"],
@@ -159,7 +155,6 @@ async function orderRoutes(fastify, options) {
                         }
                     }
                 }
-
             }
         },
 
@@ -174,6 +169,47 @@ async function orderRoutes(fastify, options) {
 
             return reply.send(
                 successResponse(order, "Estado actualizado correctamente")
+            );
+
+        })
+    );
+
+
+    // PATCH /orders/:id/promocion  ← NUEVO
+    fastify.patch(
+        "/:id/promocion",
+        {
+            schema: {
+                params: {
+                    type: "object",
+                    required: ["id"],
+                    properties: {
+                        id: { type: "string" }
+                    }
+                },
+
+                body: {
+                    type: "object",
+                    required: ["promotionId"],
+                    properties: {
+                        promotionId: { type: "string" }
+                    }
+                }
+            }
+        },
+
+        asyncHandler(async (request, reply) => {
+
+            validarObjectId(request.params.id);
+            validarObjectId(request.body.promotionId);
+
+            const order = await orderService.aplicarPromocionAPedido(
+                request.params.id,
+                request.body.promotionId
+            );
+
+            return reply.send(
+                successResponse(order, "Promoción aplicada correctamente")
             );
 
         })

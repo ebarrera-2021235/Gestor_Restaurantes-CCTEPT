@@ -3,7 +3,6 @@ using UserService.Application.Interfaces;
 using UserService.Domain.Entities;
 using UserService.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
-
 namespace UserService.Application.Services;
 
 public class AuthService : IAuthService
@@ -15,18 +14,18 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
-        IUserRepository userRepository,
-        IPasswordHashService passwordHashService,
-        IJwtTokenGenerator jwtTokenGenerator,
-        IEmailService emailService,
-        ILogger<AuthService> logger)
-    {
-        _userRepository = userRepository;
-        _passwordHashService = passwordHashService;
-        _jwtTokenGenerator = jwtTokenGenerator;
-        _emailService = emailService;
-        _logger = logger;
-    }
+    IUserRepository userRepository,
+    IPasswordHashService passwordHashService,
+    IJwtTokenGenerator jwtTokenGenerator,
+    IEmailService emailService,
+    ILogger<AuthService> logger)
+{
+    _userRepository = userRepository;
+    _passwordHashService = passwordHashService;
+    _jwtTokenGenerator = jwtTokenGenerator;
+    _emailService = emailService;
+    _logger = logger;
+}
 
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
     {
@@ -46,7 +45,7 @@ public class AuthService : IAuthService
                 new UserRole 
                 { 
                     Id = Guid.NewGuid().ToString("N").Substring(0, 16),
-                    RoleId = 2
+                    RoleId = 2 // Asignar el ID del rol "User" directamente
                 }
             }
         };
