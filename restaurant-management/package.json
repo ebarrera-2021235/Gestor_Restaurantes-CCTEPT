@@ -8,7 +8,7 @@
   "test": "echo \"Error: no test specified\" && exit 1"
 },
   "keywords": [],
-  "author": "Diego Alejandro Sebastian Peña || Edgar Roberto Catalan",
+  "author": "Emilio Sebastian Barrera.",
   "license": "ISC",
   "packageManager": "pnpm@10.29.3",
   "dependencies": {

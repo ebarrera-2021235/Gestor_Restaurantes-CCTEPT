@@ -135,6 +135,12 @@ public class EmailService(IConfiguration configuration, ILogger<EmailService> lo
 
                 // Crear mensaje con MimeKit
                 var message = new MimeMessage();
+                //Validacion de email de origen
+                if(string.IsNullOrWhiteSpace(fromEmail))
+                    throw new InvalidOperationException("From email is nos configured.");
+                
+                if(string.IsNullOrWhiteSpace(to))
+                    throw new ArgumentException("Recipient email cannot be null.");
                 message.From.Add(new MailboxAddress(fromName, fromEmail));
                 message.To.Add(new MailboxAddress("", to));
                 message.Subject = subject;

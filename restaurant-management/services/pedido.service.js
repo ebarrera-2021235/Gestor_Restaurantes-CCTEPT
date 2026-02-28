@@ -94,3 +94,37 @@ exports.updateOrderStatus = async (orderId, estado) => {
     return await order.save();
 
 };
+
+exports.aplicarPromocionAPedido = async (orderId, promotionId) => {
+
+    const { aplicarDescuento } = require("../services/promotion.service.js");
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        const error = new Error("Pedido no encontrado");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (!order.total || order.total <= 0) {
+        const error = new Error("El pedido no tiene un total válido para aplicar descuento");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    const resultado = await aplicarDescuento(promotionId, order.total);
+
+    order.total = resultado.totalFinal;
+
+    await order.save();
+
+    return {
+        pedido: order,
+        descuentoAplicado: resultado.descuento,
+        totalOriginal: resultado.totalOriginal,
+        totalFinal: resultado.totalFinal,
+        promocion: resultado.promocion
+    };
+
+};

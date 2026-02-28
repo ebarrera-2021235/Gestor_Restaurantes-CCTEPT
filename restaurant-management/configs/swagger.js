@@ -3,8 +3,8 @@ async function swaggerConfig(fastify) {
 await fastify.register(require("@fastify/swagger"), {
     openapi: {
         info: {
-            title: "API Gestión de Restaurantes y Menús",
-            description: "Servicio empresarial para gestión de restaurantes y menús",
+            title: "Savora | Gestion Restaurantes",
+            description: "Servicio Empresarial Savora - Gestión de Restaurantes",
             version: "1.0.0"
         }
     }
