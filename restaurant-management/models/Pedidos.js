@@ -106,7 +106,7 @@ const orderSchema = new mongoose.Schema(
   }
 );
 
-orderSchema.pre("validate", function(next) {
+orderSchema.pre("validate", function () {
   if (this.items && this.items.length > 0) {
     let calculadoSubtotal = 0;
     this.items.forEach(item => {
@@ -116,20 +116,23 @@ orderSchema.pre("validate", function(next) {
     this.subtotal = calculadoSubtotal;
     this.total = this.subtotal + (this.impuestos || 0) + (this.servicio || 0);
   }
-  next();
 });
 
 orderSchema.post("init", function(doc) {
   doc._originalEstado = doc.estado;
 });
 
-orderSchema.pre("save", function(next) {
+orderSchema.pre("save", function () {
   if (!this.isNew && this.isModified("estado")) {
-    if (this._originalEstado === ORDER_STATUS.COMPLETED || this._originalEstado === ORDER_STATUS.CANCELLED) {
-      return next(new Error(`No se puede modificar un pedido que ya está en estado: ${this._originalEstado}`));
+    if (
+      this._originalEstado === ORDER_STATUS.COMPLETED ||
+      this._originalEstado === ORDER_STATUS.CANCELLED
+    ) {
+      throw new Error(
+        `No se puede modificar un pedido que ya está en estado: ${this._originalEstado}`
+      );
     }
   }
-  next();
 });
 
 orderSchema.index({ restaurantId: 1, createdAt: -1 });
